@@ -191,6 +191,49 @@ export default function AuthPage({ onLoginSuccess, onBackToHome, isAdminPortal =
           </button>
         </form>
 
+        {/* Demo Quick Fill Buttons */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '8px',
+          marginTop: '20px',
+          padding: '12px',
+          borderRadius: '8px',
+          border: '1px dashed var(--glass-border)',
+          background: 'rgba(255, 255, 255, 0.02)'
+        }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>💡 Quick-Fill Demo Accounts:</span>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{ fontSize: '0.75rem', padding: '6px 12px', height: 'auto' }}
+              onClick={() => {
+                setEmail('user@reflect.com');
+                setPassword('userpassword');
+                setActiveTab('login');
+                setError('');
+              }}
+            >
+              Regular User
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{ fontSize: '0.75rem', padding: '6px 12px', height: 'auto' }}
+              onClick={() => {
+                setEmail('admin@reflect.com');
+                setPassword('adminpassword');
+                setActiveTab('login');
+                setError('');
+              }}
+            >
+              Admin Portal
+            </button>
+          </div>
+        </div>
+
         <div className="auth-footer">
           {activeTab === 'login' ? (
             <p>Don't have an account? <span onClick={() => { setActiveTab('register'); setError(''); }}>Sign up</span></p>

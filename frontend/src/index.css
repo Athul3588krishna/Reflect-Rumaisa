@@ -12,6 +12,13 @@
   --aurora-cyan: linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%);
   --aurora-gold: linear-gradient(135deg, #eab308 0%, #fef08a 100%);
   
+  --accent: #7c3aed;
+  --accent-light: rgba(124, 58, 237, 0.15);
+  --danger: #f43f5e;
+  --danger-light: rgba(244, 63, 94, 0.15);
+  --success: #10b981;
+  --success-light: rgba(16, 185, 129, 0.15);
+  
   --text-main: #f8fafc;
   --text-sub: #94a3b8;
   --text-dark: #475569;
@@ -293,6 +300,13 @@ h1, h2, h3, h4, h5, h6 {
   --text-dark: #cbd5e1;
   --text-primary: var(--text-main);
   --text-secondary: var(--text-sub);
+  
+  --accent: #6366f1;
+  --accent-light: rgba(99, 102, 241, 0.12);
+  --danger: #e11d48;
+  --danger-light: rgba(225, 29, 72, 0.1);
+  --success: #059669;
+  --success-light: rgba(5, 150, 105, 0.1);
   
   --glass-bg: rgba(255, 255, 255, 0.75);
   --glass-border: rgba(0, 0, 0, 0.08);
