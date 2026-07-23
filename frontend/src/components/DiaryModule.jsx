@@ -446,7 +446,7 @@ export default function DiaryModule() {
       )}
 
       {/* Editor Modal Popup */}
-      {isModalOpen && (
+      {isModalOpen && createPortal(
         <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
           <div className="modal-content glass-panel" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setIsModalOpen(false)}>×</button>
@@ -713,7 +713,8 @@ export default function DiaryModule() {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
