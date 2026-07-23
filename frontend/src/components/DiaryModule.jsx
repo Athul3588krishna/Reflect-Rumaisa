@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Plus, Trash2, Edit3, Mic, Video, StopCircle, RefreshCw, Paperclip, Music, Video as VideoIcon, FileText } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Search, Plus, Trash2, Edit3, Mic, Video, StopCircle, RefreshCw, Paperclip, Music, Video as VideoIcon, FileText, BookOpen } from 'lucide-react';
 
 const API_URL = 'http://localhost:5000/api';
 
@@ -128,6 +129,12 @@ export default function DiaryModule() {
           'Authorization': `Bearer ${token}`
         }
       });
+      if (res.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.reload();
+        return;
+      }
       const data = await res.json();
       if (data.success) {
         setEntries(data.data);
@@ -448,241 +455,244 @@ export default function DiaryModule() {
             </h3>
 
             <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label>Diary Title</label>
-                <input 
-                  type="text" 
-                  className="form-control" 
-                  placeholder="Give a title to your memories..."
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                />
-              </div>
+              <div className="modal-form-grid" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '20px', marginBottom: '12px' }}>
+                
+                {/* Left Column (Title & Content) */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label style={{ fontSize: '0.8rem', marginBottom: '4px' }}>Diary Title</label>
+                    <input 
+                      type="text" 
+                      className="form-control" 
+                      placeholder="Give a title to your memories..."
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      style={{ height: '36px', padding: '6px 10px', fontSize: '0.85rem' }}
+                      required
+                    />
+                  </div>
 
-              <div className="form-group" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div>
-                  <label>Journal Date</label>
-                  <input 
-                    type="date" 
-                    className="form-control" 
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <label>Tags (Comma-separated)</label>
-                  <input 
-                    type="text" 
-                    className="form-control" 
-                    placeholder="life, workout, study"
-                    value={tags}
-                    onChange={(e) => setTags(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <label style={{ margin: 0 }}>Journal Entry (Text)</label>
-                  <div style={{ display: 'flex', gap: '6px' }}>
-                    <button 
-                      type="button" 
-                      onClick={() => insertMarkdown('bold')}
-                      style={{ padding: '2px 8px', fontSize: '0.75rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', color: 'var(--text-main)', cursor: 'pointer', fontWeight: 'bold' }}
-                      title="Bold Text"
-                    >
-                      B
-                    </button>
-                    <button 
-                      type="button" 
-                      onClick={() => insertMarkdown('italic')}
-                      style={{ padding: '2px 8px', fontSize: '0.75rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', color: 'var(--text-main)', cursor: 'pointer', fontStyle: 'italic' }}
-                      title="Italic Text"
-                    >
-                      I
-                    </button>
-                    <button 
-                      type="button" 
-                      onClick={() => insertMarkdown('header')}
-                      style={{ padding: '2px 8px', fontSize: '0.75rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', color: 'var(--text-main)', cursor: 'pointer' }}
-                      title="Insert Heading"
-                    >
-                      H3
-                    </button>
-                    <button 
-                      type="button" 
-                      onClick={() => insertMarkdown('list')}
-                      style={{ padding: '2px 8px', fontSize: '0.75rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', color: 'var(--text-main)', cursor: 'pointer' }}
-                      title="Insert Bullet List"
-                    >
-                      • List
-                    </button>
+                  <div className="form-group" style={{ marginBottom: 0, display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <label style={{ margin: 0, fontSize: '0.8rem' }}>Journal Entry (Text)</label>
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <button 
+                          type="button" 
+                          onClick={() => insertMarkdown('bold')}
+                          style={{ padding: '2px 8px', fontSize: '0.75rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', color: 'var(--text-main)', cursor: 'pointer', fontWeight: 'bold' }}
+                          title="Bold Text"
+                        >
+                          B
+                        </button>
+                        <button 
+                          type="button" 
+                          onClick={() => insertMarkdown('italic')}
+                          style={{ padding: '2px 8px', fontSize: '0.75rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', color: 'var(--text-main)', cursor: 'pointer', fontStyle: 'italic' }}
+                          title="Italic Text"
+                        >
+                          I
+                        </button>
+                        <button 
+                          type="button" 
+                          onClick={() => insertMarkdown('header')}
+                          style={{ padding: '2px 8px', fontSize: '0.75rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', color: 'var(--text-main)', cursor: 'pointer' }}
+                          title="Insert Heading"
+                        >
+                          H3
+                        </button>
+                        <button 
+                          type="button" 
+                          onClick={() => insertMarkdown('list')}
+                          style={{ padding: '2px 8px', fontSize: '0.75rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', color: 'var(--text-main)', cursor: 'pointer' }}
+                          title="Insert Bullet List"
+                        >
+                          • List
+                        </button>
+                      </div>
+                    </div>
+                    <textarea 
+                      id="diary-content-textarea"
+                      className="form-control" 
+                      rows={10}
+                      placeholder="Start writing details of your day here..."
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
+                      style={{ resize: 'none', flexGrow: 1, minHeight: '220px', padding: '12px', fontSize: '0.9rem' }}
+                    ></textarea>
                   </div>
                 </div>
-                <textarea 
-                  id="diary-content-textarea"
-                  className="form-control" 
-                  rows={6}
-                  placeholder="Start writing details of your day here..."
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  style={{ resize: 'vertical' }}
-                ></textarea>
-              </div>
 
-              {/* Multimedia section */}
-              <div style={{ marginBottom: '24px' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: '8px' }}>
-                  Multimedia Logs (Audio / Video)
-                </label>
+                {/* Right Column (Date, Tags & Media) */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label style={{ fontSize: '0.8rem', marginBottom: '4px' }}>Journal Date</label>
+                    <input 
+                      type="date" 
+                      className="form-control" 
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      style={{ height: '36px', padding: '6px 10px', fontSize: '0.85rem' }}
+                      required
+                    />
+                  </div>
 
-                {/* Video Preview */}
-                {videoPreview && !clearVideo && (
-                  <div className="media-preview-box">
-                    <div className="media-preview-header">
-                      <span>Video Diary Log</span>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label style={{ fontSize: '0.8rem', marginBottom: '4px' }}>Tags (Comma-separated)</label>
+                    <input 
+                      type="text" 
+                      className="form-control" 
+                      placeholder="life, workout, study"
+                      value={tags}
+                      onChange={(e) => setTags(e.target.value)}
+                      style={{ height: '36px', padding: '6px 10px', fontSize: '0.85rem' }}
+                    />
+                  </div>
+
+                  {/* Multimedia section */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexGrow: 1, justifyContent: 'flex-end' }}>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>
+                      Multimedia Logs (Audio / Video)
+                    </label>
+
+                    {/* Video Preview */}
+                    {videoPreview && !clearVideo && (
+                      <div className="media-preview-box" style={{ marginBottom: '8px' }}>
+                        <div className="media-preview-header">
+                          <span>Video Diary Log</span>
+                          <button 
+                            type="button" 
+                            className="btn btn-danger" 
+                            style={{ padding: '4px 8px', fontSize: '0.75rem' }}
+                            onClick={() => { setVideoPreview(''); setVideoFile(null); setClearVideo(true); }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        <video src={videoPreview} className="media-player" controls style={{ maxHeight: '100px' }} />
+                      </div>
+                    )}
+
+                    {/* Audio Preview */}
+                    {audioPreview && !clearAudio && (
+                      <div className="media-preview-box" style={{ marginBottom: '8px' }}>
+                        <div className="media-preview-header">
+                          <span>Audio Diary Log</span>
+                          <button 
+                            type="button" 
+                            className="btn btn-danger" 
+                            style={{ padding: '4px 8px', fontSize: '0.75rem' }}
+                            onClick={() => { setAudioPreview(''); setAudioFile(null); setClearAudio(true); }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        <audio src={audioPreview} className="media-player" style={{ height: '40px' }} controls />
+                      </div>
+                    )}
+
+                    {/* Web Camera Feed for recording */}
+                    {recordingMode === 'video' && isRecording && (
+                      <div className="media-preview-box" style={{ backgroundColor: '#000000', marginBottom: '8px' }}>
+                        <div className="media-preview-header" style={{ marginBottom: '6px' }}>
+                          <span style={{ color: 'red', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'red', display: 'inline-block' }}></span>
+                            Recording Camera...
+                          </span>
+                        </div>
+                        <video ref={videoPreviewRef} className="media-player" autoPlay muted style={{ maxHeight: '100px' }} />
+                      </div>
+                    )}
+
+                    {/* Web Microphone layout for recording */}
+                    {recordingMode === 'audio' && isRecording && (
+                      <div className="media-preview-box" style={{ textAlign: 'center', padding: '12px', marginBottom: '8px' }}>
+                        <div className="waveform-container" style={{ height: '32px', margin: '8px auto' }}>
+                          <div className="waveform-bar"></div>
+                          <div className="waveform-bar"></div>
+                          <div className="waveform-bar"></div>
+                          <div className="waveform-bar"></div>
+                          <div className="waveform-bar"></div>
+                          <div className="waveform-bar"></div>
+                          <div className="waveform-bar"></div>
+                          <div className="waveform-bar"></div>
+                        </div>
+                        <p style={{ margin: 0, color: '#fb7185', fontSize: '0.8rem', fontWeight: 600 }}>Recording voice log...</p>
+                      </div>
+                    )}
+
+                    {/* Multimedia Interaction Buttons */}
+                    {!isRecording ? (
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+                        {/* File Attachment Button */}
+                        <button 
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={() => document.getElementById('file-attachment-input').click()}
+                          style={{ padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', fontSize: '0.75rem' }}
+                        >
+                          <Paperclip size={14} />
+                          <span>Attach</span>
+                        </button>
+                        <input 
+                          id="file-attachment-input"
+                          type="file"
+                          className="media-upload-input"
+                          accept="image/*,audio/*,video/*"
+                          style={{ display: 'none' }}
+                          onChange={(e) => {
+                            const file = e.target.files[0];
+                            if (!file) return;
+                            
+                            if (file.type.startsWith('audio/')) {
+                              setAudioFile(file);
+                              setAudioPreview(URL.createObjectURL(file));
+                              setClearAudio(false);
+                            } else if (file.type.startsWith('video/')) {
+                              setVideoFile(file);
+                              setVideoPreview(URL.createObjectURL(file));
+                              setClearVideo(false);
+                            } else {
+                              alert('Please select an audio or video file!');
+                            }
+                          }}
+                        />
+
+                        {/* Record Audio Button */}
+                        <button 
+                          type="button" 
+                          className="btn btn-secondary" 
+                          onClick={() => startRecording('audio')}
+                          style={{ padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', fontSize: '0.75rem' }}
+                        >
+                          <Mic size={14} />
+                          <span>Audio</span>
+                        </button>
+
+                        {/* Record Video Button */}
+                        <button 
+                          type="button" 
+                          className="btn btn-secondary" 
+                          onClick={() => startRecording('video')}
+                          style={{ padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', fontSize: '0.75rem' }}
+                        >
+                          <Video size={14} />
+                          <span>Video</span>
+                        </button>
+                      </div>
+                    ) : (
                       <button 
                         type="button" 
                         className="btn btn-danger" 
-                        style={{ padding: '4px 8px', fontSize: '0.75rem' }}
-                        onClick={() => { setVideoPreview(''); setVideoFile(null); setClearVideo(true); }}
+                        onClick={stopRecording}
+                        style={{ width: '100%', padding: '10px' }}
                       >
-                        Remove
+                        <StopCircle size={16} />
+                        Stop Recording
                       </button>
-                    </div>
-                    <video src={videoPreview} className="media-player" controls />
+                    )}
                   </div>
-                )}
+                </div>
 
-                {/* Audio Preview */}
-                {audioPreview && !clearAudio && (
-                  <div className="media-preview-box">
-                    <div className="media-preview-header">
-                      <span>Audio Diary Log</span>
-                      <button 
-                        type="button" 
-                        className="btn btn-danger" 
-                        style={{ padding: '4px 8px', fontSize: '0.75rem' }}
-                        onClick={() => { setAudioPreview(''); setAudioFile(null); setClearAudio(true); }}
-                      >
-                        Remove
-                      </button>
-                    </div>
-                    <audio src={audioPreview} className="media-player" style={{ height: '54px' }} controls />
-                  </div>
-                )}
-
-                {/* Web Camera Feed for recording */}
-                {recordingMode === 'video' && isRecording && (
-                  <div className="media-preview-box" style={{ backgroundColor: '#000000' }}>
-                    <div className="media-preview-header" style={{ marginBottom: '6px' }}>
-                      <span style={{ color: 'red', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'red', display: 'inline-block' }}></span>
-                        Recording Camera Feed...
-                      </span>
-                    </div>
-                    <video ref={videoPreviewRef} className="media-player" autoPlay muted />
-                  </div>
-                )}
-
-                {/* Web Microphone layout for recording */}
-                {recordingMode === 'audio' && isRecording && (
-                  <div className="media-preview-box" style={{ textAlign: 'center', padding: '24px' }}>
-                    <div className="waveform-container">
-                      <div className="waveform-bar"></div>
-                      <div className="waveform-bar"></div>
-                      <div className="waveform-bar"></div>
-                      <div className="waveform-bar"></div>
-                      <div className="waveform-bar"></div>
-                      <div className="waveform-bar"></div>
-                      <div className="waveform-bar"></div>
-                      <div className="waveform-bar"></div>
-                    </div>
-                    <p style={{ marginTop: '10px', color: '#fb7185', fontSize: '0.85rem', fontWeight: 600 }}>Recording voice log...</p>
-                  </div>
-                )}
-
-                {/* Multimedia Interaction Buttons */}
-                {!isRecording ? (
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                    {/* File Attachment Upload */}
-                    <div 
-                      className="glass-panel" 
-                      style={{ 
-                        padding: '16px', 
-                        textAlign: 'center', 
-                        cursor: 'pointer',
-                        borderStyle: 'dashed',
-                        borderColor: 'var(--glass-border)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '6px'
-                      }}
-                      onClick={() => document.getElementById('file-attachment-input').click()}
-                    >
-                      <Paperclip size={20} className="text-secondary" />
-                      <span style={{ fontSize: '0.8rem', fontWeight: 500 }}>Attach Media File</span>
-                      <input 
-                        id="file-attachment-input"
-                        type="file"
-                        className="media-upload-input"
-                        accept="image/*,audio/*,video/*"
-                        onChange={(e) => {
-                          const file = e.target.files[0];
-                          if (!file) return;
-                          
-                          if (file.type.startsWith('audio/')) {
-                            setAudioFile(file);
-                            setAudioPreview(URL.createObjectURL(file));
-                            setClearAudio(false);
-                          } else if (file.type.startsWith('video/')) {
-                            setVideoFile(file);
-                            setVideoPreview(URL.createObjectURL(file));
-                            setClearVideo(false);
-                          } else {
-                            alert('Please select an audio or video file!');
-                          }
-                        }}
-                      />
-                    </div>
-
-                    {/* Quick Native Record tools */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      <button 
-                        type="button" 
-                        className="btn btn-secondary" 
-                        onClick={() => startRecording('audio')}
-                        style={{ flexGrow: 1, padding: '10px' }}
-                      >
-                        <Mic size={16} />
-                        Record Audio
-                      </button>
-                      <button 
-                        type="button" 
-                        className="btn btn-secondary" 
-                        onClick={() => startRecording('video')}
-                        style={{ flexGrow: 1, padding: '10px' }}
-                      >
-                        <Video size={16} />
-                        Record Video
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <button 
-                    type="button" 
-                    className="btn btn-danger" 
-                    onClick={stopRecording}
-                    style={{ width: '100%', padding: '12px' }}
-                  >
-                    <StopCircle size={18} />
-                    Stop Recording
-                  </button>
-                )}
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>

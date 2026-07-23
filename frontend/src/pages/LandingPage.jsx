@@ -83,7 +83,7 @@ export default function LandingPage({ onStart, theme, toggleTheme }) {
             WebkitTextFillColor: 'transparent'
           }}
         >
-          Your Personal Space for Thoughts, Audio, and Video.
+          Share thoughts- Music,Video,Text
         </h1>
         <p 
           style={{ 
@@ -98,7 +98,7 @@ export default function LandingPage({ onStart, theme, toggleTheme }) {
         </p>
         <div style={{ display: 'flex', gap: '16px' }}>
           <button className="btn btn-primary" style={{ padding: '14px 28px', fontSize: '1rem' }} onClick={onStart}>
-            Get Started Free
+            Get started free 
           </button>
         </div>
       </section>
@@ -189,7 +189,7 @@ export default function LandingPage({ onStart, theme, toggleTheme }) {
           marginTop: 'auto'
         }}
       >
-        © {new Date().getFullYear()} Reflect Diary. All rights reserved. Built with the MERN Stack.
+        © {new Date().getFullYear()} Reflect Diary. All rights reserved reflectx
       </footer>
 
     </div>
