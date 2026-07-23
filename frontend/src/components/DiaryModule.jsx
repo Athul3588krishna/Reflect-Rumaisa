@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Search, Plus, Trash2, Edit3, Mic, Video, StopCircle, RefreshCw, Paperclip, Music, Video as VideoIcon, FileText, BookOpen } from 'lucide-react';
+import { Search, Plus, Trash2, Edit3, Mic, Video, StopCircle, RefreshCw, Paperclip, Music, Video as VideoIcon, FileText, BookOpen, Image as ImageIcon } from 'lucide-react';
 
 const API_URL = 'http://localhost:5000/api';
 
@@ -23,12 +23,15 @@ export default function DiaryModule() {
   // Media upload & recording states
   const [audioFile, setAudioFile] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
   const [audioPreview, setAudioPreview] = useState('');
   const [videoPreview, setVideoPreview] = useState('');
+  const [imagePreview, setImagePreview] = useState('');
   
   // Clear file commands (when editing, to delete old media)
   const [clearAudio, setClearAudio] = useState(false);
   const [clearVideo, setClearVideo] = useState(false);
+  const [clearImage, setClearImage] = useState(false);
 
   // Recorder states
   const [recordingMode, setRecordingMode] = useState(null); // null | 'audio' | 'video'
@@ -159,10 +162,13 @@ export default function DiaryModule() {
     setTags('');
     setAudioFile(null);
     setVideoFile(null);
+    setImageFile(null);
     setAudioPreview('');
     setVideoPreview('');
+    setImagePreview('');
     setClearAudio(false);
     setClearVideo(false);
+    setClearImage(false);
     setIsModalOpen(true);
   };
 
@@ -175,10 +181,13 @@ export default function DiaryModule() {
     setTags(entry.tags ? entry.tags.join(', ') : '');
     setAudioFile(null);
     setVideoFile(null);
+    setImageFile(null);
     setAudioPreview(entry.audioUrl ? `http://localhost:5000/${entry.audioUrl}` : '');
     setVideoPreview(entry.videoUrl ? `http://localhost:5000/${entry.videoUrl}` : '');
+    setImagePreview(entry.imageUrl ? `http://localhost:5000/${entry.imageUrl}` : '');
     setClearAudio(false);
     setClearVideo(false);
+    setClearImage(false);
     setIsModalOpen(true);
   };
 
@@ -273,6 +282,7 @@ export default function DiaryModule() {
   // Submit Form (Create or Update)
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("SUBMITTING DIARY:", { title, content, audioFile, videoFile, imageFile });
     setLoading(true);
 
     const formData = new FormData();
@@ -287,10 +297,14 @@ export default function DiaryModule() {
     if (videoFile) {
       formData.append('video', videoFile);
     }
+    if (imageFile) {
+      formData.append('image', imageFile);
+    }
 
     if (editingEntry) {
       formData.append('clearAudio', clearAudio);
       formData.append('clearVideo', clearVideo);
+      formData.append('clearImage', clearImage);
     }
 
     try {
@@ -420,6 +434,11 @@ export default function DiaryModule() {
               </div>
 
               <h3 className="diary-card-title">{entry.title}</h3>
+              {entry.imageUrl && (
+                <div style={{ margin: '12px 0 8px 0', maxHeight: '160px', overflow: 'hidden', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(0,0,0,0.2)' }}>
+                  <img src={`http://localhost:5000/${entry.imageUrl}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
+                </div>
+              )}
               <p className="diary-card-body" dangerouslySetInnerHTML={{ __html: renderMarkdown(entry.content) || '<i>No text content written.</i>' }}></p>
 
               <div className="diary-card-footer">
@@ -429,6 +448,9 @@ export default function DiaryModule() {
                   ))}
                 </div>
                 <div className="diary-card-media-indicators">
+                  {entry.imageUrl && (
+                    <ImageIcon size={16} className="media-indicator-active" title="Image included" />
+                  )}
                   {entry.audioUrl && (
                     <Music size={16} className="media-indicator-active" title="Audio included" />
                   )}
@@ -554,6 +576,24 @@ export default function DiaryModule() {
                       Multimedia Logs (Audio / Video)
                     </label>
 
+                    {/* Image Preview */}
+                    {imagePreview && !clearImage && (
+                      <div className="media-preview-box" style={{ marginBottom: '8px' }}>
+                        <div className="media-preview-header">
+                          <span>Image Attachment</span>
+                          <button 
+                            type="button" 
+                            className="btn btn-danger" 
+                            style={{ padding: '4px 8px', fontSize: '0.75rem' }}
+                            onClick={() => { setImagePreview(''); setImageFile(null); setClearImage(true); }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        <img src={imagePreview} className="media-player" style={{ maxHeight: '100px', objectFit: 'contain', borderRadius: '6px' }} alt="" />
+                      </div>
+                    )}
+
                     {/* Video Preview */}
                     {videoPreview && !clearVideo && (
                       <div className="media-preview-box" style={{ marginBottom: '8px' }}>
@@ -651,8 +691,12 @@ export default function DiaryModule() {
                               setVideoFile(file);
                               setVideoPreview(URL.createObjectURL(file));
                               setClearVideo(false);
+                            } else if (file.type.startsWith('image/')) {
+                              setImageFile(file);
+                              setImagePreview(URL.createObjectURL(file));
+                              setClearImage(false);
                             } else {
-                              alert('Please select an audio or video file!');
+                              alert('Please select an image, audio, or video file!');
                             }
                           }}
                         />

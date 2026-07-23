@@ -17,7 +17,8 @@ router.route('/')
   .post(
     upload.fields([
       { name: 'audio', maxCount: 1 },
-      { name: 'video', maxCount: 1 }
+      { name: 'video', maxCount: 1 },
+      { name: 'image', maxCount: 1 }
     ]),
     createDiaryEntry
   );
@@ -27,7 +28,8 @@ router.route('/:id')
   .put(
     upload.fields([
       { name: 'audio', maxCount: 1 },
-      { name: 'video', maxCount: 1 }
+      { name: 'video', maxCount: 1 },
+      { name: 'image', maxCount: 1 }
     ]),
     updateDiaryEntry
   )

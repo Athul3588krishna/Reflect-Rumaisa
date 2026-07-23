@@ -73,10 +73,12 @@ exports.getDiaryEntryById = async (req, res) => {
 // @access  Private
 exports.createDiaryEntry = async (req, res) => {
   try {
+    console.log("CREATE ENTRY FILES:", req.files);
     const { title, content, date, tags } = req.body;
 
     let audioUrl = null;
     let videoUrl = null;
+    let imageUrl = null;
 
     // Extract uploaded files paths
     if (req.files) {
@@ -85,6 +87,9 @@ exports.createDiaryEntry = async (req, res) => {
       }
       if (req.files.video) {
         videoUrl = `uploads/${req.files.video[0].filename}`;
+      }
+      if (req.files.image) {
+        imageUrl = `uploads/${req.files.image[0].filename}`;
       }
     }
 
@@ -104,6 +109,7 @@ exports.createDiaryEntry = async (req, res) => {
       content,
       audioUrl,
       videoUrl,
+      imageUrl,
       date: date ? new Date(date) : new Date(),
       tags: parsedTags
     });
@@ -114,6 +120,7 @@ exports.createDiaryEntry = async (req, res) => {
     if (req.files) {
       if (req.files.audio) deleteFile(`uploads/${req.files.audio[0].filename}`);
       if (req.files.video) deleteFile(`uploads/${req.files.video[0].filename}`);
+      if (req.files.image) deleteFile(`uploads/${req.files.image[0].filename}`);
     }
     res.status(500).json({ success: false, message: error.message });
   }
@@ -124,6 +131,7 @@ exports.createDiaryEntry = async (req, res) => {
 // @access  Private
 exports.updateDiaryEntry = async (req, res) => {
   try {
+    console.log("UPDATE ENTRY FILES:", req.files);
     let entry = await DiaryEntry.findOne({ _id: req.params.id, user: req.user.id });
 
     if (!entry) {
@@ -157,6 +165,12 @@ exports.updateDiaryEntry = async (req, res) => {
       entry.videoUrl = `uploads/${req.files.video[0].filename}`;
     }
 
+    // If new image uploaded, delete old one and assign new path
+    if (req.files && req.files.image) {
+      if (entry.imageUrl) deleteFile(entry.imageUrl);
+      entry.imageUrl = `uploads/${req.files.image[0].filename}`;
+    }
+
     // Support clearing media files explicitly
     if (req.body.clearAudio === 'true') {
       if (entry.audioUrl) deleteFile(entry.audioUrl);
@@ -166,6 +180,10 @@ exports.updateDiaryEntry = async (req, res) => {
       if (entry.videoUrl) deleteFile(entry.videoUrl);
       entry.videoUrl = null;
     }
+    if (req.body.clearImage === 'true') {
+      if (entry.imageUrl) deleteFile(entry.imageUrl);
+      entry.imageUrl = null;
+    }
 
     await entry.save();
     res.status(200).json({ success: true, data: entry });
@@ -173,6 +191,7 @@ exports.updateDiaryEntry = async (req, res) => {
     if (req.files) {
       if (req.files.audio) deleteFile(`uploads/${req.files.audio[0].filename}`);
       if (req.files.video) deleteFile(`uploads/${req.files.video[0].filename}`);
+      if (req.files.image) deleteFile(`uploads/${req.files.image[0].filename}`);
     }
     res.status(500).json({ success: false, message: error.message });
   }
@@ -181,6 +200,7 @@ exports.updateDiaryEntry = async (req, res) => {
 // @desc    Delete a diary entry
 // @route   DELETE /api/diary/:id
 // @access  Private
+// @desc    Delete a diary entry
 exports.deleteDiaryEntry = async (req, res) => {
   try {
     const entry = await DiaryEntry.findOne({ _id: req.params.id, user: req.user.id });
@@ -192,6 +212,7 @@ exports.deleteDiaryEntry = async (req, res) => {
     // Delete associated media files
     if (entry.audioUrl) deleteFile(entry.audioUrl);
     if (entry.videoUrl) deleteFile(entry.videoUrl);
+    if (entry.imageUrl) deleteFile(entry.imageUrl);
 
     await DiaryEntry.deleteOne({ _id: req.params.id });
 

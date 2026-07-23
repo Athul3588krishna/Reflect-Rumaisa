@@ -23,6 +23,10 @@ const DiaryEntrySchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  imageUrl: {
+    type: String,
+    default: null
+  },
   date: {
     type: Date,
     required: [true, 'Please specify a diary entry date'],
