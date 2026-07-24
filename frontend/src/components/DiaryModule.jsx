@@ -282,7 +282,6 @@ export default function DiaryModule() {
   // Submit Form (Create or Update)
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("SUBMITTING DIARY:", { title, content, audioFile, videoFile, imageFile });
     setLoading(true);
 
     const formData = new FormData();

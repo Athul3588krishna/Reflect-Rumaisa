@@ -73,7 +73,6 @@ exports.getDiaryEntryById = async (req, res) => {
 // @access  Private
 exports.createDiaryEntry = async (req, res) => {
   try {
-    console.log("CREATE ENTRY FILES:", req.files);
     const { title, content, date, tags } = req.body;
 
     let audioUrl = null;
@@ -131,7 +130,6 @@ exports.createDiaryEntry = async (req, res) => {
 // @access  Private
 exports.updateDiaryEntry = async (req, res) => {
   try {
-    console.log("UPDATE ENTRY FILES:", req.files);
     let entry = await DiaryEntry.findOne({ _id: req.params.id, user: req.user.id });
 
     if (!entry) {
