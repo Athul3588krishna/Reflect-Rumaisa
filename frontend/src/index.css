@@ -395,8 +395,34 @@ h1, h2, h3, h4, h5, h6 {
   border-color: rgba(0, 0, 0, 0.06);
 }
 
-.light-theme .todo-item {
+.light-theme .todo-item,
+.light-theme .todo-card {
   background-color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.light-theme .todo-stat-pill {
+  background-color: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.light-theme .todo-details-box {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.light-theme .todo-media-container {
+  background-color: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+.light-theme .todo-mode-tabs {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.light-theme .todo-media-dropzone {
+  border-color: rgba(0, 0, 0, 0.15);
+  background-color: rgba(0, 0, 0, 0.015);
 }
 
 .light-theme .notification-item {

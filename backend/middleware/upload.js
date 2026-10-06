@@ -14,23 +14,34 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
-    cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
+    const ext = path.extname(file.originalname);
+    const base = path.basename(file.originalname, ext).replace(/[^a-zA-Z0-9_-]/g, '_');
+    cb(null, `${file.fieldname || 'media'}-${Date.now()}-${base}${ext}`);
   }
 });
 
 // Check file type
 function checkFileType(file, cb) {
-  // Allowed file types
-  const filetypes = /jpeg|jpg|png|gif|webp|jfif|mp3|wav|ogg|m4a|mp4|webm|mov|avi|mpeg/;
+  // Allowed file types (Images, Audio, Video, Documents)
+  const filetypes = /jpeg|jpg|png|gif|webp|jfif|svg|bmp|mp3|wav|ogg|m4a|aac|flac|mp4|webm|mov|avi|mkv|mpeg|3gp|pdf|doc|docx|txt|rtf|xls|xlsx|ppt|pptx|zip|csv/i;
   // Check extension
   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-  // Check mime
-  const mimetype = filetypes.test(file.mimetype);
 
-  if (mimetype && extname) {
+  if (extname) {
     return cb(null, true);
   } else {
-    cb(new Error('Error: Only images, audio, and video files are allowed!'));
+    // Fallback mime check for generic streams or recognized types
+    if (
+      file.mimetype.startsWith('image/') ||
+      file.mimetype.startsWith('audio/') ||
+      file.mimetype.startsWith('video/') ||
+      file.mimetype.startsWith('text/') ||
+      file.mimetype.includes('pdf') ||
+      file.mimetype.includes('document')
+    ) {
+      return cb(null, true);
+    }
+    cb(new Error('Error: Only media files (images, audio, video) and documents are allowed!'));
   }
 }
 

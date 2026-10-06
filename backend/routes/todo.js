@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/auth');
+const upload = require('../middleware/upload');
 const {
   getTasks,
   createTask,
@@ -12,10 +13,10 @@ router.use(protect);
 
 router.route('/')
   .get(getTasks)
-  .post(createTask);
+  .post(upload.single('media'), createTask);
 
 router.route('/:id')
-  .put(updateTask)
+  .put(upload.single('media'), updateTask)
   .delete(deleteTask);
 
 module.exports = router;

@@ -434,11 +434,11 @@ export default function DiaryModule() {
 
               <h3 className="diary-card-title">{entry.title}</h3>
               {entry.imageUrl && (
-                <div style={{ margin: '12px 0 8px 0', maxHeight: '160px', overflow: 'hidden', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(0,0,0,0.2)' }}>
-                  <img src={`http://localhost:5000/${entry.imageUrl}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
+                <div className="diary-card-image">
+                  <img src={`http://localhost:5000/${entry.imageUrl}`} alt={entry.title || "Entry image"} />
                 </div>
               )}
-              <p className="diary-card-body" dangerouslySetInnerHTML={{ __html: renderMarkdown(entry.content) || '<i>No text content written.</i>' }}></p>
+              <div className="diary-card-body" dangerouslySetInnerHTML={{ __html: renderMarkdown(entry.content) || '<i>No text content written.</i>' }}></div>
 
               <div className="diary-card-footer">
                 <div className="diary-card-tags">

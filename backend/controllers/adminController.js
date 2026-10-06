@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const User = require('../models/User');
 const DiaryEntry = require('../models/DiaryEntry');
 const Task = require('../models/Task');
@@ -64,7 +66,29 @@ exports.deleteUser = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Cannot delete an Admin account' });
     }
 
-    // Delete user's diary entries, tasks, and notifications
+    // Delete user's diary entries, tasks, and notifications along with their files
+    const diaryEntries = await DiaryEntry.find({ user: user._id });
+    diaryEntries.forEach(entry => {
+      [entry.audioUrl, entry.videoUrl, entry.imageUrl].forEach(fileUrl => {
+        if (fileUrl) {
+          const fullPath = path.join(__dirname, '..', fileUrl);
+          if (fs.existsSync(fullPath)) {
+            try { fs.unlinkSync(fullPath); } catch (e) {}
+          }
+        }
+      });
+    });
+
+    const tasks = await Task.find({ user: user._id });
+    tasks.forEach(task => {
+      if (task.mediaUrl) {
+        const fullPath = path.join(__dirname, '..', task.mediaUrl);
+        if (fs.existsSync(fullPath)) {
+          try { fs.unlinkSync(fullPath); } catch (e) {}
+        }
+      }
+    });
+
     await DiaryEntry.deleteMany({ user: user._id });
     await Task.deleteMany({ user: user._id });
     await Notification.deleteMany({ recipient: user._id });
